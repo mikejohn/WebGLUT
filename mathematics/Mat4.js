@@ -51,7 +51,7 @@ mat4.identity = function (dest) {
 };
 mat4.MULMat4 = function (mat1, mat2, dest) {
     if (!dest) {
-        dest = mat2;
+        dest = new MatrixArray(16);
     }
     dest[0] = mat1[0] * mat2[0] + mat1[4] * mat2[1] + mat1[8] * mat2[2] + mat1[12] * mat2[3];
     dest[1] = mat1[1] * mat2[0] + mat1[5] * mat2[1] + mat1[9] * mat2[2] + mat1[13] * mat2[3];
