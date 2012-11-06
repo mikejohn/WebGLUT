@@ -1,0 +1,264 @@
+<html lang="zh-CN">
+
+<head>
+    <title></title>
+    <meta charset="UTF-8"/>
+
+    <script type="text/javascript" src="../mathematics/Vec.js"></script>
+    <script type="text/javascript" src="../mathematics/Mat4.js"></script>
+    <script type="text/javascript" src="../mathematics/TRS3D.js"></script>
+    <script type="text/javascript" src="point.js"></script>
+
+    <script id="shader-fs" type="x-shader/x-fragment">
+
+        precision mediump float;
+
+
+        void main(void) {
+        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+        }
+    </script>
+
+    <script id="shader-vs" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition;
+
+        uniform mat4 mMatrix;
+        uniform mat4 vMatrix;
+        uniform mat4 pMatrix;
+        void main(void) {
+        gl_Position = pMatrix * vMatrix * mMatrix * vec4(aVertexPosition, 1.0);
+        }
+    </script>
+
+
+    <script type="text/javascript">
+
+        var gl;
+        function initGL(canvas) {
+            try {
+                gl = canvas.getContext("experimental-webgl");
+                gl.viewportWidth = canvas.width;
+                gl.viewportHeight = canvas.height;
+            } catch (e) {
+            }
+            if (!gl) {
+                alert("Could not initialise WebGL, sorry :-(");
+            }
+        }
+
+
+        function getShader(gl, id) {
+            var shaderScript = document.getElementById(id);
+            if (!shaderScript) {
+                return null;
+            }
+
+            var str = "";
+            var k = shaderScript.firstChild;
+            while (k) {
+                if (k.nodeType == 3) {
+                    str += k.textContent;
+                }
+                k = k.nextSibling;
+            }
+
+            var shader;
+            if (shaderScript.type == "x-shader/x-fragment") {
+                shader = gl.createShader(gl.FRAGMENT_SHADER);
+            } else if (shaderScript.type == "x-shader/x-vertex") {
+                shader = gl.createShader(gl.VERTEX_SHADER);
+            } else {
+                return null;
+            }
+
+            gl.shaderSource(shader, str);
+            gl.compileShader(shader);
+
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                alert(gl.getShaderInfoLog(shader));
+                return null;
+            }
+
+            return shader;
+        }
+
+
+        var shaderProgram;
+
+        function initShaders() {
+            var fragmentShader = getShader(gl, "shader-fs");
+            var vertexShader = getShader(gl, "shader-vs");
+
+            shaderProgram = gl.createProgram();
+            gl.attachShader(shaderProgram, vertexShader);
+            gl.attachShader(shaderProgram, fragmentShader);
+            gl.linkProgram(shaderProgram);
+
+            if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+                alert("Could not initialise shaders");
+            }
+
+            gl.useProgram(shaderProgram);
+
+            shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+            gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+
+            shaderProgram.mMatrixUniform = gl.getUniformLocation(shaderProgram, "mMatrix");
+            shaderProgram.vMatrixUniform = gl.getUniformLocation(shaderProgram, "vMatrix");
+            shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "pMatrix");
+        }
+
+
+        var mMatrix;
+        var vMatrix;
+        var pMatrix;
+
+        function setMatrixUniforms() {
+
+            gl.uniformMatrix4fv(shaderProgram.mMatrixUniform, false, mMatrix);
+            gl.uniformMatrix4fv(shaderProgram.vMatrixUniform, false, vMatrix);
+            gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+        }
+
+
+        var triangleVertexPositionBuffer;
+        var squareVertexPositionBuffer;
+
+
+        var VPStep = 10;
+        var vpx=vpy= 0,vpz=2;
+        function moveViewPoint () {
+            document.body.onkeydown = function (event) {
+                //left
+                if(event.keyCode == 37) {
+                    vpx -= 1/VPStep;
+                    lax -= 1/VPStep;
+                    return;
+                }
+                //up
+                if(event.keyCode == 38) {
+                    vpz -= 1/VPStep;
+                    laz -= 1/VPStep;
+                    return;
+                }
+                //right
+                if(event.keyCode == 39) {
+                    vpx += 1/VPStep;
+                    lax += 1/VPStep;
+                    return;
+                }
+                //down
+                if(event.keyCode == 40) {
+                    vpz += 1/VPStep;
+                    laz += 1/VPStep;
+                    return;
+                }
+                //pageup
+                if(event.keyCode == 33) {
+                    vpy += 1/VPStep;
+                    lay += 1/VPStep;
+                    return;
+                }
+                //pagedown
+                if(event.keyCode == 34) {
+                    vpy -= 1/VPStep;
+                    lay -= 1/VPStep;
+                    return;
+                }
+            };
+        }
+        var lax=lay=laz=0;
+        var VPLALength = Math.sqrt((vpx-lax)*(vpx-lax)+(vpy-lay)*(vpy-lay)+(vpz-laz)*(vpz-laz));
+        var lastPOZ = {
+            x : 0,
+            y : 0
+        };
+        var alpha=beta=0;
+        var enableMoveLookAt = false;
+        var LAStep = 10000;
+        function moveLookAt () {
+            document.body.onmousedown = function (event) {
+                lastPOZ.x = event.clientX;
+                lastPOZ.y = event.clientY;
+                enableMoveLookAt = true;
+            }
+            document.body.onmousemove = function (event) {
+                if(enableMoveLookAt) {
+                    alpha += (event.clientX - lastPOZ.x)/LAStep;
+                    var sinA = Math.sin(alpha),cosA = Math.cos(alpha);
+                    lax = sinA*VPLALength + vpx;
+                    beta += (event.clientY - lastPOZ.y)/LAStep;
+                    var sinB = Math.sin(beta),cosB = Math.cos(beta);
+                    lay = sinB*VPLALength + vpy;
+                    laz  = vpz +1 - cosA*VPLALength - cosB*VPLALength;
+                }
+            }
+            document.body.onmouseup = function (event) {
+                enableMoveLookAt = false;
+            }
+        }
+        function drawScene() {
+            gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+
+            mMatrix = mat4.create(
+                vec4.create(1,0,0,0),
+                vec4.create(0,1,0,0),
+                vec4.create(0,0,1,0),
+                vec4.create(0,0,0,1)
+            );
+            var viewPoint = vec3.create(vpx,vpy,vpz);
+            var lookAt = vec3.create(lax,lay,laz);
+
+            var up = vec3.create(0,1,0);
+            vMatrix = unvViewingCoordinate(viewPoint,lookAt,up);
+
+            //mat4.dump(vMatrix);
+            pMatrix = normsymmpers(1,1,Math.PI/2, -1,-400);
+
+            setMatrixUniforms();
+
+            p1.draw();
+            p2.draw();
+            p3.draw();
+        }
+
+        var p1,p2,p3;
+        function webGLStart() {
+            var canvas = document.getElementById("lesson01-canvas");
+            initGL(canvas);
+            initShaders();
+            p1 = new Point(0,0,-3);
+            p1.pushGPU();
+            p2 = new Point(1,1,-3);
+            p2.pushGPU();
+            p3 = new Point(2,1,-3);
+            p3.pushGPU();
+            gl.clearColor(0.0, 0.0, 0.0, 1.0);
+            gl.enable(gl.DEPTH_TEST);
+
+            drawScene();
+            moveViewPoint();
+            moveLookAt();
+
+            setInterval(drawScene,33);
+        }
+
+
+    </script>
+
+
+</head>
+
+
+<body onload="webGLStart();">
+
+
+<canvas id="lesson01-canvas" style="border: none;" width="500" height="500"></canvas>
+
+
+</body>
+
+</html>
