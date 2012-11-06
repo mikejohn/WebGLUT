@@ -138,7 +138,7 @@
 
         }
         var VPStep = 10;
-        var vpx=vpy= 0,vpz=2;
+        var vpx=vpy= 0,vpz=1;
         function moveViewPoint () {
             document.body.onkeydown = function (event) {
                 //left
@@ -198,11 +198,12 @@
                 if(enableMoveLookAt) {
                     alpha += (event.clientX - lastPOZ.x)/LAStep;
                     var sinA = Math.sin(alpha),cosA = Math.cos(alpha);
-                    lax = sinA*VPLALength + vpx;
                     beta += (event.clientY - lastPOZ.y)/LAStep;
                     var sinB = Math.sin(beta),cosB = Math.cos(beta);
+                    lax = sinA*cosB*VPLALength + vpx;
                     lay = sinB*VPLALength + vpy;
-                    laz  = vpz +1 - cosA*VPLALength - cosB*VPLALength;
+                    laz = VPLALength*(1 - cosA*cosB);
+                    console.log('x:'+lax+' y:'+lay +' z:'+laz);
                 }
             }
             document.body.onmouseup = function (event) {
