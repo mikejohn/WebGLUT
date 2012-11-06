@@ -6,6 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 var Line = function (startPoint,endPoint,segmentLength) {
+    Object3D.call(this);
     this.startPoint = startPoint;
     this.endPoint = endPoint;
     this.segmentLength = segmentLength;
@@ -43,16 +44,18 @@ Line.prototype = {
     draw : function () {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.GPUBUFFER);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-        gl.drawArrays(gl.LINE_STRIP, 0, this.segmentNumber+1);
+        gl.uniformMatrix4fv(shaderProgram.mMatrixUniform, false, this.modelMatrix);
+        gl.drawArrays(gl.LINE_STRIP, 0, this.segmentNumber);
     },
     debug : function (command) {
         switch (command) {
-            case 'drawPoint' :
+            case 'drawPoints' :
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.GPUBUFFER);
                 gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-                gl.drawArrays(gl.POINTS, 0, this.segmentNumber+1);
+                gl.uniformMatrix4fv(shaderProgram.mMatrixUniform, false, this.modelMatrix);
+                gl.drawArrays(gl.POINTS, 0, this.segmentNumber);
                 break;
         }
     }
 };
-
+Line.extends(Object3D);

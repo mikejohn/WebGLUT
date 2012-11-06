@@ -1,5 +1,5 @@
 var Point = function (x,y,z) {
-    var a = new Object3D();
+    Object3D.call(this);
     this.x = x;
     this.y = y;
     this.z = z;
@@ -16,6 +16,8 @@ Point.prototype = {
     draw : function () {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.GPUBUFFER);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+        gl.uniformMatrix4fv(shaderProgram.mMatrixUniform, false, this.modelMatrix);
         gl.drawArrays(gl.POINTS, 0, 1);
     }
 };
+Point.extends(Object3D);

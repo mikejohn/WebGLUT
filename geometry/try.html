@@ -7,7 +7,7 @@
     <script type="text/javascript" src="../mathematics/Vec.js"></script>
     <script type="text/javascript" src="../mathematics/Mat4.js"></script>
     <script type="text/javascript" src="../mathematics/TRS3D.js"></script>
-    <script type="test/javascript" src="object3D.js"></script>
+    <script type="text/javascript" src="object3D.js"></script>
     <script type="text/javascript" src="point.js"></script>
     <script type="text/javascript" src="line.js"></script>
 
@@ -119,7 +119,7 @@
 
         function setMatrixUniforms() {
 
-            gl.uniformMatrix4fv(shaderProgram.mMatrixUniform, false, mMatrix);
+            //gl.uniformMatrix4fv(shaderProgram.mMatrixUniform, false, mMatrix);
             gl.uniformMatrix4fv(shaderProgram.vMatrixUniform, false, vMatrix);
             gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
         }
@@ -222,8 +222,9 @@
             pMatrix = normsymmpers(1,1,Math.PI/2, -1,-400);
 
             setMatrixUniforms();
-            p.draw();
 
+            p.debug('drawPoints');
+            //p.draw();
 
         }
 
@@ -232,8 +233,12 @@
             var canvas = document.getElementById("lesson01-canvas");
             initGL(canvas);
             initShaders();
-            p = new Point(1,1,-3);
+            p = new Line(vec3.create(0,0,0),vec3.create(1,0,0),.03);
             p.pushGPU();
+            p.translate(-.5,0,0);
+            p.rotateZ(Math.PI/4);
+            p.translate(.5,0,0);
+            p.rotateZ(Math.PI/4);
 
 
             gl.clearColor(0.0, 0.0, 0.0, 1.0);
