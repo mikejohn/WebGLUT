@@ -10,6 +10,7 @@
     <script type="text/javascript" src="object3D.js"></script>
     <script type="text/javascript" src="point.js"></script>
     <script type="text/javascript" src="line.js"></script>
+    <script type="text/javascript" src="rectangle.js"></script>
 
 
     <script id="shader-fs" type="x-shader/x-fragment">
@@ -223,22 +224,19 @@
 
             setMatrixUniforms();
 
-            p.debug('drawPoints');
-            //p.draw();
+            rect.debug();
 
         }
 
-        var p;
+        var rect;
         function webGLStart() {
             var canvas = document.getElementById("lesson01-canvas");
             initGL(canvas);
             initShaders();
-            p = new Line(vec3.create(0,0,0),vec3.create(1,0,0),.03);
-            p.pushGPU();
-            p.translate(-.5,0,0);
-            p.rotateZ(Math.PI/4);
-            p.translate(.5,0,0);
-            p.rotateZ(Math.PI/4);
+            rect = new Rectangle(4,2,.04,.06);
+            rect.rotateZ(Math.PI/4);
+            rect.pushGPU();
+
 
 
             gl.clearColor(0.0, 0.0, 0.0, 1.0);
