@@ -11,6 +11,8 @@
 <script type="text/javascript" src="point.js"></script>
 <script type="text/javascript" src="line.js"></script>
 <script type="text/javascript" src="rectangle.js"></script>
+<script type="text/javascript" src="arc.js"></script>
+<script type="text/javascript" src="sector.js"></script>
 
 
 <script id="shader-fs" type="x-shader/x-fragment">
@@ -198,7 +200,7 @@ function drawScene() {
 
     var up = vec3.create(0, 1, 0);
     vMatrix = unvViewingCoordinate(viewPoint, lookAt, up);
-    mat4.dump(rotateMatrix);
+
     var viewing = mat4.MULMat4(moveMatrix, rotateMatrix);
 
     vMatrix = mat4.MULMat4(viewing, vMatrix);
@@ -207,22 +209,21 @@ function drawScene() {
 
     setMatrixUniforms();
 
-    rect.debug();
+    s._debug();
 
 }
 
-var rect;
+var s;
 function webGLStart() {
     var canvas = document.getElementById("lesson01-canvas");
     initGL(canvas);
     initShaders();
-    rect = new Rectangle(4, 2,.1, .1);
-    rect.rotateZ(Math.PI / 4);
-    rect.pushGPU();
-
-
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
+
+    s = new Sector(2,1,2,0,Math.PI*2,360);
+    s.translate(0,0,-5);
+    s.pushGPU();
 
     drawScene();
     moveViewPoint();

@@ -5,102 +5,84 @@
  * Time: 下午5:35
  * To change this template use File | Settings | File Templates.
  */
-var Rectangle = function (width,height,segmentWidth,segmentHeight) {
+var Rectangle = function (width, height, wSegmentsNum, hSegmentsNum) {
     Object3D.call(this);
     this.width = width;
     this.height = height;
-    this.segmentWidth = segmentWidth;
-    this.segmentHeight = segmentHeight;
+    this.wSegmentNum = wSegmentsNum;
+    this.hSegmentNum = hSegmentsNum;
     this.vertexBuffer = null;
-    this.drawIndexBuffer = null;
+    this.elementBuffer = null;
+    this._elementArrayLength = null;
+    this._debugArrayLength = null;
+    this._build();
 }
 Rectangle.prototype = {
-    constructor : Rectangle,
-    pushGPU : function () {
-        //vertex
-        var left = - this.width/ 2,
-            right = this.width/ 2,
-            top = this.height/ 2,
-            bottom = -this.height/ 2,
-            i=j=k=column=row=0,
-            xStepLength = this.segmentWidth,
-            yStepLength = this.segmentHeight,
-            pointVertexPoz = [];
-
-        while(top-yStepLength*j > bottom ) {
-            while (left+xStepLength*i < right) {
-                pointVertexPoz[i*3+j*3*column] = left+xStepLength*i;
-                pointVertexPoz[i*3+j*3*column+1] = top-yStepLength*j;
-                pointVertexPoz[i*3+j*3*column+2] = 0;
-                i++;
+    constructor:Rectangle,
+    _build : function () {
+        var width = this.width,
+            height = this.height,
+            half_width = width/ 2,
+            half_height = height / 2,
+            wSegmentNum = this.wSegmentNum,
+            hSegmentNum = this.hSegmentNum,
+            wSegmentLength = width/wSegmentNum,
+            hSegmentLength = height/hSegmentNum,
+            wVertexNum = wSegmentNum+ 1,
+            hVertexNum = hSegmentNum +1;
+            var vertex = [];
+            var vertexLength = 3;
+            var numberOfRow = vertexLength*wVertexNum;
+            for(var i=0;i<hVertexNum;i++) {
+                for(var j=0;j<wVertexNum;j++) {
+                    vertex[i*numberOfRow+j*vertexLength] = j*wSegmentLength - half_width;
+                    vertex[i*numberOfRow+j*vertexLength+1] = i*hSegmentLength - half_height;
+                    vertex[i*numberOfRow+j*vertexLength+2] = 0;
+                }
             }
-            pointVertexPoz[i*3+j*3*column] = right;
-            pointVertexPoz[i*3+j*3*column+1] = top-yStepLength*j;
-            pointVertexPoz[i*3+j*3*column+2] = 0;
-            column = i+1;
-            i=0;
-            j++;
-        }
-        while (left+xStepLength*i < right) {
-            pointVertexPoz[i*3+j*3*column] = left+xStepLength*i;
-            pointVertexPoz[i*3+j*3*column+1] = bottom;
-            pointVertexPoz[i*3+j*3*column+2] = 0;
-            i++;
-        }
-        pointVertexPoz[i*3+j*3*column] = left+xStepLength*i;
-        pointVertexPoz[i*3+j*3*column+1] = bottom;
-        pointVertexPoz[i*3+j*3*column+2] = 0;
-        row = j+1;
-        //draw index
-        var drawIndex = [];
-        for(i=0;i<row-1;i++) {
-            for(j=0;j<column-1;j++) {
-                drawIndex[i*(column-1)*6+j*6] = j + i* column;
-                drawIndex[i*(column-1)*6+j*6+1] = j + (i+1)* column;
-                drawIndex[i*(column-1)*6+j*6+2] = j+1+i* column;
-                drawIndex[i*(column-1)*6+j*6+3] = j+ (i+1)*column;
-                drawIndex[i*(column-1)*6+j*6+4] = j+1+i* column;
-                drawIndex[i*(column-1)*6+j*6+5] = j+(i+1)*column+1;
+            var element = [],
+                wElementNum= wSegmentNum,
+                hElementNum= hSegmentNum;
+            var elementLength = 6;
+            numberOfRow = elementLength*wElementNum;
+            for (i = 0; i < hElementNum; i++) {
+                for (j = 0; j < wElementNum; j++) {
+                    element[i * numberOfRow + j * elementLength] = j + i * wVertexNum;
+                    element[i * numberOfRow + j * elementLength + 1] = j + (i + 1) * wVertexNum;
+                    element[i * numberOfRow + j * elementLength + 2] = j + 1 + i * wVertexNum;
+                    element[i * numberOfRow + j * elementLength + 3] = j + (i + 1) * wVertexNum;
+                    element[i * numberOfRow + j * elementLength + 4] = j + 1 + i * wVertexNum;
+                    element[i * numberOfRow + j * elementLength + 5] = j + (i + 1) * wVertexNum + 1;
+                }
             }
-        }
-//        var test = [];
-//        test.push(-1);
-//        test.push(-1);
-//        test.push(-3);
-//        test.push(0);
-//        test.push(1);
-//        test.push(-3);
-//        test.push(1);
-//        test.push(-1);
-//        test.push(-3);
-//        var index = [];
-//        index.push(0);
-//        index.push(1);
-//        index.push(2);
+            this.vertexs = vertex;
+            this.elements = element;
+            this._elementArrayLength = element.length;
+            this._debugArrayLength = vertex.length/3;
+    },
+    pushGPU:function () {
         this.vertexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(pointVertexPoz), gl.STATIC_DRAW);
-        this.drawIndexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.drawIndexBuffer);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(drawIndex), gl.STATIC_DRAW);
-        this.drawLength = drawIndex.length;
-        this.debugLength = pointVertexPoz.length/3;
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.vertexs), gl.STATIC_DRAW);
+        this.elementBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(this.elements), gl.STATIC_DRAW);
     },
-    draw : function () {
+    draw:function () {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
         gl.uniformMatrix4fv(shaderProgram.mMatrixUniform, false, this.modelMatrix);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.drawIndexBuffer);
-
-        gl.drawElements(gl.TRIANGLES,  this.drawLength, gl.UNSIGNED_SHORT, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);
+        gl.drawElements(gl.TRIANGLES, this._elementArrayLength, gl.UNSIGNED_SHORT, 0);
     },
-    debug : function () {
+    _debug:function () {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
         gl.uniformMatrix4fv(shaderProgram.mMatrixUniform, false, this.modelMatrix);
 
 
-        gl.drawArrays(gl.POINTS, 0, this.debugLength);
+        gl.drawArrays(gl.POINTS, 0, this._debugArrayLength);
     }
 };
 Rectangle.extends(Object3D);
+
