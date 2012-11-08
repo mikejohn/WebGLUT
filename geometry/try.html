@@ -16,6 +16,7 @@
 <script type="text/javascript" src="parallelogram.js"></script>
 <script type="text/javascript" src="triangle.js"></script>
 <script type="text/javascript" src="BezierCurve.js"></script>
+<script type="text/javascript" src="BezierSmooth.js"></script>
 
 
 <script id="shader-fs" type="x-shader/x-fragment">
@@ -212,7 +213,7 @@ function drawScene() {
 
     setMatrixUniforms();
 
-    p.draw();
+    p._debug();
 
 }
 
@@ -224,13 +225,16 @@ function webGLStart() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
 
-    var points = [];
-    points.push(vec3.create(0,0,0));
-    points.push(vec3.create(0,1,0));
-    points.push(vec3.create(1,1,0));
-    points.push(vec3.create(2,1,0));
+//    var points = [];
+//    points.push(vec3.create(0,2,0));
+//    points.push(vec3.create(1,2,0));
+//    points.push(vec3.create(2,2,0));
+//    points.push(vec3.create(2,0,0));
+//    points.push(vec3.create(1,0,0));
+//    points.push(vec3.create(0,0,0));
 
-    p = new BezierCurve(points,10);
+//    p = new BezierSmooth(points,10,0.3);
+    p = new Rectangle(3,4,20,20);
     p.translate(0,0,-5);
     p.pushGPU();
 
