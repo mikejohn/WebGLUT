@@ -79,8 +79,6 @@ Rectangle.prototype = {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
         gl.uniformMatrix4fv(shaderProgram.mMatrixUniform, false, this.modelMatrix);
-
-
         gl.drawArrays(gl.POINTS, 0, this._debugArrayLength);
     }
 };

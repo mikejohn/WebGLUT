@@ -13,6 +13,9 @@
 <script type="text/javascript" src="rectangle.js"></script>
 <script type="text/javascript" src="arc.js"></script>
 <script type="text/javascript" src="sector.js"></script>
+<script type="text/javascript" src="parallelogram.js"></script>
+<script type="text/javascript" src="triangle.js"></script>
+<script type="text/javascript" src="BezierCurve.js"></script>
 
 
 <script id="shader-fs" type="x-shader/x-fragment">
@@ -209,11 +212,11 @@ function drawScene() {
 
     setMatrixUniforms();
 
-    s._debug();
+    p.draw();
 
 }
 
-var s;
+var p;
 function webGLStart() {
     var canvas = document.getElementById("lesson01-canvas");
     initGL(canvas);
@@ -221,9 +224,15 @@ function webGLStart() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.enable(gl.DEPTH_TEST);
 
-    s = new Sector(2,1,2,0,Math.PI*2,360);
-    s.translate(0,0,-5);
-    s.pushGPU();
+    var points = [];
+    points.push(vec3.create(0,0,0));
+    points.push(vec3.create(0,1,0));
+    points.push(vec3.create(1,1,0));
+    points.push(vec3.create(2,1,0));
+
+    p = new BezierCurve(points,10);
+    p.translate(0,0,-5);
+    p.pushGPU();
 
     drawScene();
     moveViewPoint();
