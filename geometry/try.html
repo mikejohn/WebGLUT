@@ -17,6 +17,7 @@
 <script type="text/javascript" src="triangle.js"></script>
 <script type="text/javascript" src="BezierCurve.js"></script>
 <script type="text/javascript" src="BezierSmooth.js"></script>
+<script type="text/javascript" src="cube.js"></script>
 
 
 <script id="shader-fs" type="x-shader/x-fragment">
@@ -137,6 +138,7 @@ var squareVertexPositionBuffer;
 var VPStep = .2;
 var moveMatrix = mat4.identity();
 var vx = vy = vz = 0;
+var displayMode = 'triangle',dmc = 0;
 function moveViewPoint() {
     document.body.onkeydown = function (event) {
         //left
@@ -163,6 +165,19 @@ function moveViewPoint() {
         if (event.keyCode == 34) {
             vz -= VPStep;
         }
+        //space
+        if (event.keyCode == 32) {
+            dmc++;
+            var mode = dmc % 3;
+            if(mode == 0) {
+                displayMode ='triangle';
+            } else if( mode == 1) {
+                displayMode = 'line';
+            } else if (mode == 2) {
+                displayMode = 'point';
+            }
+        }
+        console.log(displayMode);
         moveMatrix = translate(vx, vy, vz);
     };
 }
@@ -195,6 +210,7 @@ function moveLookAt() {
         enableMoveLookAt = false;
     };
 }
+
 function drawScene() {
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -212,8 +228,8 @@ function drawScene() {
     pMatrix = normsymmpers(1, 1, Math.PI / 2, -1, -400);
 
     setMatrixUniforms();
-
-    p._debug();
+    console.log(displayMode);
+    p.draw(displayMode);
 
 }
 
@@ -234,7 +250,7 @@ function webGLStart() {
 //    points.push(vec3.create(0,0,0));
 
 //    p = new BezierSmooth(points,10,0.3);
-    p = new Rectangle(3,4,20,20);
+    p = new Cube(3,3,3,10,10,10);
     p.translate(0,0,-5);
     p.pushGPU();
 
