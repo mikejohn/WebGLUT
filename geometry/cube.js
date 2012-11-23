@@ -15,7 +15,14 @@ var Cube = function (width, height, depth, wSegmentNumber, hSegmentNumber, dSegm
     this.dSegmentNumber = dSegmentNumber;
     this.elements_line = null;
     this.elements_triangle = null;
-    this._build();
+    this.Enable_Color = false;
+    this.frontColor = null;
+    this.backColor = null;
+    this.upColor = null;
+    this.downColor = null;
+    this.leftColor = null;
+    this.rightColor = null;
+    //this._build();
 };
 Cube.prototype = {
     constructor:Cube,
@@ -29,9 +36,17 @@ Cube.prototype = {
             width = this.width,
             height = this.height,
             depth = this.depth,
-            WSegments =  this.wSegmentNumber;
-            HSegments = this.hSegmentNumber;
-            DSegments = this.dSegmentNumber;
+            WSegments =  this.wSegmentNumber,
+            HSegments = this.hSegmentNumber,
+            DSegments = this.dSegmentNumber,
+            Enable_Color = this.Enable_Color,
+            frontColor = this.frontColor,backColor = this.backColor,
+            leftColor = this.leftColor,rightColor = this.rightColor,
+            upColor = this.upColor,downColor = this.downColor;
+        var vertexLength = 3;//默认一个顶点包含3个数据x,y,z坐标
+        if(this.Enable_Color) {
+            vertexLength+=4;//开启颜色控制，一个顶点增加4个数据r,g,b,a
+        }
         //build front
         buildPlane('front',width,height,depth,WSegments,HSegments);
 
@@ -72,65 +87,95 @@ Cube.prototype = {
                 YVertexs = HSegments + 1,
                 half_W = W / 2,
                 half_H = H / 2,
-                half_D = D / 2;
+                half_D = D / 2,
+                color = {
+                    r : 1,
+                    g : 1,
+                    b : 1,
+                    a : 1
+                };
             var u = v = w = r = s = t = 1;
             switch (name) {
                 case 'front' :
                     u = 0;
                     w = 2;
                     t = -1;
+                    if(frontColor != null) {
+                        color = frontColor;
+                    }
                     break;
                 case 'right' :
                     u = 2;
                     w = 0;
                     t = -1;
+                    if(rightColor!= null) {
+                        color = rightColor;
+                    }
                     break;
                 case 'back' :
                     u = 0;
                     w = 2;
                     r = -1;
                     t = -1;
+                    if(backColor!=null) {
+                        color = backColor;
+                    }
                     break;
                 case 'left' :
                     u = 2;
                     w = 0;
                     r = -1;
                     t = -1;
+                    if(leftColor!=null) {
+                        color = leftColor;
+                    }
                     break;
                 case 'up' :
                     u = 2;
                     v = 0;
                     t = -1;
+                    if(upColor!= null) {
+                        color = upColor;
+                    }
                     break;
                 case 'down' :
                     u = 2;
                     v = 0;
                     t = -1;
                     r = -1;
+                    if(downColor != null) {
+                        color = downColor;
+                    }
                     break;
             }
 
             for (var i = 0; i < YVertexs; i++) {
-                elements_line[eli++] = vi/3;
-                elements_line[eli++] = vi/3+WSegments;
+                elements_line[eli++] = vi/vertexLength;
+                elements_line[eli++] = vi/vertexLength+WSegments;
                 for (var j = 0; j < XVertexs; j++) {
                     if(i==0) {
-                        elements_line[eli++] = vi/3;
-                        elements_line[eli++] = vi/3+XVertexs*HSegments;
+                        elements_line[eli++] = vi/vertexLength;
+                        elements_line[eli++] = vi/vertexLength+XVertexs*HSegments;
                     }
                     vertexs[vi+u] = j * XSegmentLength * s - half_W;
                     vertexs[vi+v] = i * YSegmentLength * t + half_H;
                     vertexs[vi+w] = half_D * r;
+                    if(Enable_Color) {
+                        vertexs[vi+3] = color.r;
+                        vertexs[vi+4] = color.g;
+                        vertexs[vi+5] = color.b;
+                        vertexs[vi+6] = color.a;
+                    }
                     if (j != WSegments  && i != HSegments ) {
-                        elements_triangle[eti++] = vi/3;
-                        elements_triangle[eti++] = vi/3 + XVertexs;
-                        elements_triangle[eti++] = vi/3 + XVertexs + 1;
-                        elements_triangle[eti++] = vi/3;
-                        elements_triangle[eti++] = vi/3 + 1;
-                        elements_triangle[eti++] = vi/3 + XVertexs + 1;
+                        elements_triangle[eti++] = vi/vertexLength;
+                        elements_triangle[eti++] = vi/vertexLength + XVertexs;
+                        elements_triangle[eti++] = vi/vertexLength + XVertexs + 1;
+                        elements_triangle[eti++] = vi/vertexLength;
+                        elements_triangle[eti++] = vi/vertexLength + 1;
+                        elements_triangle[eti++] = vi/vertexLength + XVertexs + 1;
 
                     }
-                    vi+=3;
+                    vi+=vertexLength;
                 }
             }
 
@@ -148,11 +193,17 @@ Cube.prototype = {
             type = 'triangle';
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
-        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+        if(this.Enable_Color) {
+            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 28, 0);
+            gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, 4, gl.FLOAT, false, 28, 12);
+        } else {
+            gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+        }
+
         gl.uniformMatrix4fv(shaderProgram.mMatrixUniform, false, this.modelMatrix);
         switch (type) {
             case 'point' :
-                gl.drawArrays(gl.POINTS, 0, this.vertexs.length/3);
+                gl.drawArrays(gl.POINTS, 0, this.vertexs.length/7);
                 break;
             case 'line' :
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.elementBuffer);

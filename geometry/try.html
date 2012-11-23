@@ -18,6 +18,7 @@
 <script type="text/javascript" src="BezierCurve.js"></script>
 <script type="text/javascript" src="BezierSmooth.js"></script>
 <script type="text/javascript" src="cube.js"></script>
+<script type="text/javascript" src="../interact/coordinate.js"></script>
 
 
 <script id="shader-fs" type="x-shader/x-fragment">
@@ -26,7 +27,7 @@
 
 
     void main(void) {
-    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    gl_FragColor = vec4(1.0, 0, 0, 1.0);
     }
 </script>
 
@@ -177,7 +178,7 @@ function moveViewPoint() {
                 displayMode = 'point';
             }
         }
-        console.log(displayMode);
+
         moveMatrix = translate(vx, vy, vz);
     };
 }
@@ -209,6 +210,19 @@ function moveLookAt() {
     document.body.onmouseup = function (event) {
         enableMoveLookAt = false;
     };
+    var canvas = document.getElementById("lesson01-canvas");
+    canvas.onmousedown = function (event) {
+        var x = event.clientX;
+        var y = event.clientY;
+        var z = -1;
+        y = 500 -y;
+        var result = unProject(x,y,z,vMatrix,pMatrix,{x : 0,y : 0,width :500,height :500});
+        console.log('Near windowX:'+x +'  windowY:'+y +"\n result x:"+result.x+" y:"+result.y+" z:"+result.z);
+
+        z =1 ;
+        var result = unProject(x,y,z,vMatrix,pMatrix,{x : 0,y : 0,width :500,height :500});
+        console.log('Far windowX:'+x +'  windowY:'+y +"\n result x:"+result.x+" y:"+result.y+" z:"+result.z);
+    }
 }
 
 function drawScene() {
@@ -225,10 +239,11 @@ function drawScene() {
 
     vMatrix = mat4.MULMat4(viewing, vMatrix);
 
+
     pMatrix = normsymmpers(1, 1, Math.PI / 2, -1, -400);
 
     setMatrixUniforms();
-    console.log(displayMode);
+
     p.draw(displayMode);
 
 }
@@ -250,8 +265,10 @@ function webGLStart() {
 //    points.push(vec3.create(0,0,0));
 
 //    p = new BezierSmooth(points,10,0.3);
-    p = new Cube(3,3,3,10,10,10);
+    p = new Cube(3,3,3,1,1,1);
     p.translate(0,0,-5);
+    p.Enable_Color = false;
+    p._build();
     p.pushGPU();
 
     drawScene();

@@ -1,0 +1,322 @@
+<html lang="zh-CN">
+
+<head>
+<title></title>
+<meta charset="UTF-8"/>
+
+<script type="text/javascript" src="../mathematics/Vec.js"></script>
+<script type="text/javascript" src="../mathematics/Mat4.js"></script>
+<script type="text/javascript" src="../mathematics/TRS3D.js"></script>
+<script type="text/javascript" src="object3D.js"></script>
+<script type="text/javascript" src="point.js"></script>
+<script type="text/javascript" src="line.js"></script>
+<script type="text/javascript" src="rectangle.js"></script>
+<script type="text/javascript" src="arc.js"></script>
+<script type="text/javascript" src="sector.js"></script>
+<script type="text/javascript" src="parallelogram.js"></script>
+<script type="text/javascript" src="triangle.js"></script>
+<script type="text/javascript" src="BezierCurve.js"></script>
+<script type="text/javascript" src="BezierSmooth.js"></script>
+<script type="text/javascript" src="cube.js"></script>
+
+
+<script id="shader-fs" type="x-shader/x-fragment">
+
+    precision mediump float;
+    varying vec4 color;
+
+    void main(void) {
+        gl_FragColor = color;
+    }
+</script>
+
+<script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aVertexPosition;
+    attribute vec4 aVertexColor;
+    varying vec4 color;
+    uniform mat4 mMatrix;
+    uniform mat4 vMatrix;
+    uniform mat4 pMatrix;
+    void main(void) {
+        gl_Position = pMatrix * vMatrix * mMatrix * vec4(aVertexPosition, 1.0);
+        color = aVertexColor;
+    }
+</script>
+
+
+<script type="text/javascript">
+
+var gl;
+function initGL(canvas) {
+    try {
+        gl = canvas.getContext("experimental-webgl");
+        gl.viewportWidth = canvas.width;
+        gl.viewportHeight = canvas.height;
+    } catch (e) {
+    }
+    if (!gl) {
+        alert("Could not initialise WebGL, sorry :-(");
+    }
+}
+
+
+function getShader(gl, id) {
+    var shaderScript = document.getElementById(id);
+    if (!shaderScript) {
+        return null;
+    }
+
+    var str = "";
+    var k = shaderScript.firstChild;
+    while (k) {
+        if (k.nodeType == 3) {
+            str += k.textContent;
+        }
+        k = k.nextSibling;
+    }
+
+    var shader;
+    if (shaderScript.type == "x-shader/x-fragment") {
+        shader = gl.createShader(gl.FRAGMENT_SHADER);
+    } else if (shaderScript.type == "x-shader/x-vertex") {
+        shader = gl.createShader(gl.VERTEX_SHADER);
+    } else {
+        return null;
+    }
+
+    gl.shaderSource(shader, str);
+    gl.compileShader(shader);
+
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        alert(gl.getShaderInfoLog(shader));
+        return null;
+    }
+
+    return shader;
+}
+
+
+var shaderProgram;
+
+function initShaders() {
+    var fragmentShader = getShader(gl, "shader-fs");
+    var vertexShader = getShader(gl, "shader-vs");
+
+    shaderProgram = gl.createProgram();
+    gl.attachShader(shaderProgram, vertexShader);
+    gl.attachShader(shaderProgram, fragmentShader);
+    gl.linkProgram(shaderProgram);
+
+    if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        alert("Could not initialise shaders");
+    }
+
+    gl.useProgram(shaderProgram);
+
+    shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
+    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+    shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+    gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
+
+
+    shaderProgram.mMatrixUniform = gl.getUniformLocation(shaderProgram, "mMatrix");
+    shaderProgram.vMatrixUniform = gl.getUniformLocation(shaderProgram, "vMatrix");
+    shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "pMatrix");
+
+}
+
+
+var mMatrix;
+var vMatrix;
+var pMatrix;
+
+function setMatrixUniforms() {
+    gl.uniformMatrix4fv(shaderProgram.vMatrixUniform, false, vMatrix);
+    gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+}
+
+
+var triangleVertexPositionBuffer;
+var squareVertexPositionBuffer;
+
+
+var VPStep = .2;
+var moveMatrix = mat4.identity();
+var vx = vy = vz = 0;
+var displayMode = 'triangle',dmc = 0;
+function moveViewPoint() {
+    document.body.onkeydown = function (event) {
+        //left
+        if (event.keyCode == 37) {
+            vx += VPStep;
+        }
+        //up
+        if (event.keyCode == 38) {
+            vy -= VPStep;
+        }
+        //right
+        if (event.keyCode == 39) {
+            vx -= VPStep;
+        }
+        //down
+        if (event.keyCode == 40) {
+            vy += VPStep;
+        }
+        //pageup
+        if (event.keyCode == 33) {
+            vz += VPStep;
+        }
+        //pagedown
+        if (event.keyCode == 34) {
+            vz -= VPStep;
+        }
+        //space
+        if (event.keyCode == 32) {
+            dmc++;
+            var mode = dmc % 3;
+            if(mode == 0) {
+                displayMode ='triangle';
+            } else if( mode == 1) {
+                displayMode = 'line';
+            } else if (mode == 2) {
+                displayMode = 'point';
+            }
+        }
+        console.log(displayMode);
+        moveMatrix = translate(vx, vy, vz);
+    };
+}
+
+
+var lastPOZ = {
+    x:0,
+    y:0
+};
+var alpha=beta=0;
+var enableMoveLookAt = false;
+var LAStep = 10000;
+var rotateMatrix = mat4.identity();
+function moveLookAt() {
+    document.body.onmousedown = function (event) {
+        lastPOZ.x = event.clientX;
+        lastPOZ.y = event.clientY;
+        enableMoveLookAt = true;
+    };
+    document.body.onmousemove = function (event) {
+        if (enableMoveLookAt) {
+            alpha += (event.clientX - lastPOZ.x) / LAStep;
+            beta += (event.clientY - lastPOZ.y) / LAStep;
+            var h = rotateY(alpha);
+            var v = rotateX(beta);
+            rotateMatrix = mat4.MULMat4(h, v);
+        }
+    };
+    document.body.onmouseup = function (event) {
+        enableMoveLookAt = false;
+    };
+}
+
+function drawScene() {
+    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    var viewPoint = vec3.create(0, 0, 1);
+    var lookAt = vec3.create(0, 0, 0);
+
+    var up = vec3.create(0, 1, 0);
+    vMatrix = unvViewingCoordinate(viewPoint, lookAt, up);
+
+    var viewing = mat4.MULMat4(moveMatrix, rotateMatrix);
+
+    vMatrix = mat4.MULMat4(viewing, vMatrix);
+
+    pMatrix = normsymmpers(1, 1, Math.PI / 2, -1, -400);
+
+    setMatrixUniforms();
+
+    p.draw(displayMode);
+
+}
+
+var p;
+function webGLStart() {
+    var canvas = document.getElementById("lesson01-canvas");
+    initGL(canvas);
+    initShaders();
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.enable(gl.DEPTH_TEST);
+
+//    var points = [];
+//    points.push(vec3.create(0,2,0));
+//    points.push(vec3.create(1,2,0));
+//    points.push(vec3.create(2,2,0));
+//    points.push(vec3.create(2,0,0));
+//    points.push(vec3.create(1,0,0));
+//    points.push(vec3.create(0,0,0));
+
+//    p = new BezierSmooth(points,10,0.3);
+    p = new Cube(3,3,3,10,10,10);
+    p.translate(0,0,-5);
+    p.frontColor = {
+        r : 1,
+        g : 0,
+        b : 0,
+        a : 1
+    };
+    p.backColor = {
+        r : 0,
+        g : 1,
+        b : 0,
+        a : 1
+    };
+    p.leftColor = {
+        r : 0,
+        g : 0,
+        b : 1,
+        a : 1
+    };
+    p.rightColor = {
+        r : 1,
+        g : 1,
+        b : 0,
+        a : 1
+    };
+    p.upColor = {
+        r : 0,
+        g : 1,
+        b : 1,
+        a : 1
+    };
+    p.downColor = {
+        r : 1,
+        g : 0,
+        b : 1,
+        a : 1
+    };
+    p.Enable_Color = true;
+    p._build();
+    p.pushGPU();
+
+    drawScene();
+    moveViewPoint();
+    moveLookAt();
+
+    setInterval(drawScene, 33);
+}
+
+
+</script>
+
+
+</head>
+
+
+<body onload="webGLStart();">
+
+
+<canvas id="lesson01-canvas" style="border: none;" width="500" height="500"></canvas>
+
+
+</body>
+
+</html>
