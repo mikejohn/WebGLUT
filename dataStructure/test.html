@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="dataStructure.js"></script>
+    <script src="LinkdList.js"></script>
+    <script src="../test/testCase.js"></script>
+    <title></title>
+</head>
+<body onload="test();">
+    <script>
+        function test() {
+            var ts = new TestSet('LinkedList',
+                    "var list = new DS.LinkdList();" +
+                    "TestCase.TestObj[0] = list");
+            ts.add(new TestCase('linkedList ins_next when list is empty',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.ins_next(null,{test : 'a'});",
+                    "list.tail.data.test == 'a'"));
+            ts.add(new TestCase('linkedList ins_next when list is not empty',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.ins_next(list.head,{test : 'b'});",
+                    "list.head.data.test == 'a' && list.tail.data.test == 'b'"));
+            ts.add(new TestCase('linkedList insert at head position when list is not empty',
+                    "var list = TestCase.TestObj[0];list.ins_next(null,{test : 'c'});",
+                    "list.head.data.test == 'c' && list.head.next.data.test == 'a' && list.tail.data.test == 'b'"));
+            ts.add(new TestCase('linkedList remove the head when list is not empty ',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.rem_next(null);",
+                    "list.head.data.test == 'a' && list.tail.data.test == 'b' && result.test == 'c'"));
+            ts.add(new TestCase("linkedList the tail's next element",
+                    "var list = TestCase.TestObj[0];" +
+                            "var r = '';" +
+                            "try{list.rem_next(list.tail);}catch(Error){r = Error.message;}" +
+                            "r;",
+                    "result == 'element is the tail fo the list.'"));
+            ts.add(new TestCase('linkedList remove the next element by element',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.rem_next(list.head);",
+                    "list.head.data.test == 'a' && result.test =='b'"));
+            ts.add(new TestCase('linkedList remove the head element when list has only one element',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.rem_next(null);",
+                    "list.head == null && list.tail==null && list.size() ==0"));
+            ts.add(new TestCase('linkedList remove element when list is empty',
+                    "var list = TestCase.TestObj[0];" +
+                            "var r = '';" +
+                            "try{list.rem_next(list.head);}catch(Error){r = Error.message;}" +
+                            "r;",
+                    "result == 'list is empty'"));
+            ts.run();
+        }
+    </script>
+</body>
+</html>

@@ -5,16 +5,10 @@
     <script src="Vec.js"></script>
     <script src="Mat4.js"></script>
     <script src="TRS3D.js"></script>
+    <script src="base.js"></script>
     <script>
-        var A = mat4.create(vec4.create(1,0,0,0),
-                vec4.create(0,2,0,0),
-                vec4.create(0,0,3,0),
-                vec4.create(0,0,0,4));
-        mat4.dump(A);
-        var B = mat4.inverse(A);
-        mat4.dump(B);
-        var C = mat4.MULMat4(A,B);
-        mat4.dump(C);
+        var string = binaryStringToRGBAFormat('1111111011111110');
+        ;
     </script>
 </head>
 <body>
