@@ -64,7 +64,7 @@ DS.CircularList.prototype = {
              throw new Error('the list is empty.');
         }
         var data = element.next.data;
-        if(element.next = element) {
+        if(element.next == element) {
             this.head = null;
         } else {
             if(element.next == this.head) {

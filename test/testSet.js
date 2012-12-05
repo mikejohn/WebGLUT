@@ -30,5 +30,6 @@ TestSet.prototype = {
             }
         }
         console.log(pass+' cases passsed.Passrate:'+ pass/this.length*100+'%');
+        TestCase.TestObj = [];
     }
 };

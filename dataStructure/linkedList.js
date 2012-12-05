@@ -6,24 +6,22 @@
  * To change this template use File | Settings | File Templates.
  */
 /**
- * Class DS.SingleLink
+ * Class DS.LinkedList
  * @constructor DS.SingleLink
  * @param destroy  The destroy argument provides a way to free dynamically allocated data when list_destroy is called.
  */
-DS.LinkdList = function (destroy) {
+DS.LinkedList = function (destroy) {
     this.head = null;
     this.tail = null;
     this.length = 0;
     this.destroyMethod = function (){
         var iterator = this.head;
-        while(!this.is_tail(iterator)){
+        while(iterator!=null){
             var curElmt = iterator;
             iterator = iterator.next;
             curElmt.data = null;
             curElmt.next = null;
         }
-        this.tail.data = null;
-        this.tail = null;
         this.head = null;
         this.length = 0;
     };
@@ -31,8 +29,8 @@ DS.LinkdList = function (destroy) {
         this.destroyMethod = destroy;
     }
 };
-DS.LinkdList.prototype = {
-    constructor:DS.LinkdList,
+DS.LinkedList.prototype = {
+    constructor:DS.LinkedList,
     /**
      * destroy
      * @description Destroys the linked list specified by list. No other operations are permitted after calling list_destroy unless list_init is called again. The list_destroy operation removes all elements from a linked list and calls the function passed as destroy to list_init once for each element as it is removed, provided destroy was not set to NULL.
@@ -48,7 +46,7 @@ DS.LinkdList.prototype = {
      * @description Inserts an element just after element in the linked list specified by list. If element is NULL, the new element is inserted at the head of the list. The new element contains a pointer to data, so the memory referenced by data should remain valid as long as the element remains in the list. It is the responsibility of the caller to manage the storage associated with data.
      */
     ins_next:function (element, data) {
-        var node = new DS.LinkdList.Node;
+        var node = new DS.LinkedList.Node;
         node.data = data;
         if(element == null) {
             if( this.length ==0) {
@@ -125,13 +123,13 @@ DS.LinkdList.prototype = {
     }
 };
 /**
- * Class SingleLink.LinkNode
- * @constructor DS.SingleLink.LinkNode
+ * Class DS.LinkedList.Node
+ * @constructor DS.LinkedList.Node
  */
-DS.LinkdList.Node = function () {
+DS.LinkedList.Node = function () {
     this.next = null;
     this.data = null;
 };
-DS.LinkdList.Node.prototype = {
-    constructor:DS.LinkdList.Node
+DS.LinkedList.Node.prototype = {
+    constructor:DS.LinkedList.Node
 };

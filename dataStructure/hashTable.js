@@ -6,10 +6,11 @@
  * To change this template use File | Settings | File Templates.
  */
 DS.HashTable = function (h,buckets,match,destroy) {
+    this.h = h;
     this.table = [];
     this.buckets = buckets;
     for(var i=0;i<buckets;i++) {
-        this.table[i] = new DS.LinkdList(destroy);
+        this.table[i] = new DS.LinkedList(destroy);
     }
     this.match = match;
     this.length = 0;
@@ -22,9 +23,11 @@ DS.HashTable.prototype = {
      */
     destroy : function () {
         var table = this.table;
-        for(var i=0;i<buckets;i++) {
+        for(var i=0;i<this.buckets;i++) {
             table[i].destroy();
+            table[i] = null;
         }
+        this.table = [];
     },
     /**
      * insert
@@ -55,7 +58,7 @@ DS.HashTable.prototype = {
             prev = null,
             table = this.table,
             match = this.match;
-        for(var element = table[bucket].head;element != null;element = elment.next) {
+        for(var element = table[bucket].head;element != null;element = element.next) {
             if(match (data,element.data)) {
                 this.length--;
                 return table[bucket].rem_next(prev);
@@ -88,20 +91,22 @@ DS.HashTable.prototype = {
      */
     size : function () {
         return this.length;
-    },
-    _hashpjw : function (key) {
-        var PRIME_TBLSIZ = this.table.length;
-        var val = 0;
-        var i = 0;
-        while (i < key.length) {
-            var tmp;
-            val = (val << 4) + key.charAt(i);
-            if(tmp = (val & 0xf0000000)) {
-                val = val^ (tmp >> 24);
-                val = val^ tmp;
-            }
-            i++;
-        }
-        return val%PRIME_TBLSIZ;
     }
+};
+DS.HashTable.hashpjw = function (key) {
+    var val = 0;
+    var i = 0;
+    while (i < key.length) {
+        var tmp;
+        if((val & 0x8000000) == 0x8000000) {
+            val = val & 0xF7FFFFFF;
+        }
+        val = (val << 4) + key.charCodeAt(i);
+        if(tmp = (val & 0xf0000000)) {
+            val = val^ (tmp >> 24);
+            val = val^ tmp;
+        }
+        i++;
+    }
+    return val;
 };

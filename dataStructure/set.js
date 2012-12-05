@@ -5,9 +5,15 @@
  * Time: 上午10:11
  * To change this template use File | Settings | File Templates.
  */
+/**
+ *  Class DS.Set
+ * @param match function(a,b){}  return true or false
+ * @param destroy
+ * @constructor
+ */
 DS.Set = function (match,destroy) {
-    this.list = new DS.LinkdList(destroy);
-    this.matcn = match;
+    this.list = new DS.LinkedList(destroy);
+    this.match = match;
 };
 DS.Set.prototype = {
     constructor : DS.Set,
@@ -39,7 +45,7 @@ DS.Set.prototype = {
      */
     remove : function (data) {
         var prev = null,member = null;
-        for(member = list.head;member != null;member = member.next) {
+        for(member = this.list.head;member != null;member = member.next) {
             if(this.match(member.data ,data)) {
                 break;
             }
@@ -70,8 +76,8 @@ DS.Set.prototype = {
             }
         }
 
-        for(var member = set.head;member != null;member = member.next) {
-            if(setu.is_member(data)) {
+        for(var member = set.list.head;member != null;member = member.next) {
+            if(setu.is_member(member.data)) {
                 continue;
             } else {
                 if(setu.insert(member.data) != 0) {
@@ -151,7 +157,7 @@ DS.Set.prototype = {
      */
     is_member : function (data) {
         for(var member = this.list.head;member != null;member = member.next) {
-            if(this.matcn(data ,member.data)) {
+            if(this.match(data ,member.data)) {
                 return true;
             }
         }

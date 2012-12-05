@@ -2,52 +2,312 @@
 <html>
 <head>
     <script src="dataStructure.js"></script>
-    <script src="LinkdList.js"></script>
+    <script src="linkedList.js"></script>
+    <script src="doublyLinkedList.js"></script>
+    <script src="circularList.js"></script>
+    <script src="stack.js"></script>
+    <script src="queue.js"></script>
+    <script src="set.js"></script>
+    <script src="hashTable.js"></script>
     <script src="../test/testCase.js"></script>
+    <script src="../test/testSet.js"></script>
+
     <title></title>
 </head>
 <body onload="test();">
     <script>
         function test() {
-            var ts = new TestSet('LinkedList',
-                    "var list = new DS.LinkdList();" +
+            var TSLinkedList = new TestSet('LinkedList',
+                    "var list = new DS.LinkedList();" +
                     "TestCase.TestObj[0] = list");
-            ts.add(new TestCase('linkedList ins_next when list is empty',
+            TSLinkedList.add(new TestCase('linkedList ins_next when list is empty',
                     "var list = TestCase.TestObj[0];" +
                             "list.ins_next(null,{test : 'a'});",
                     "list.tail.data.test == 'a'"));
-            ts.add(new TestCase('linkedList ins_next when list is not empty',
+            TSLinkedList.add(new TestCase('linkedList ins_next when list is not empty',
                     "var list = TestCase.TestObj[0];" +
                             "list.ins_next(list.head,{test : 'b'});",
                     "list.head.data.test == 'a' && list.tail.data.test == 'b'"));
-            ts.add(new TestCase('linkedList insert at head position when list is not empty',
+            TSLinkedList.add(new TestCase('linkedList insert at head position when list is not empty',
                     "var list = TestCase.TestObj[0];list.ins_next(null,{test : 'c'});",
                     "list.head.data.test == 'c' && list.head.next.data.test == 'a' && list.tail.data.test == 'b'"));
-            ts.add(new TestCase('linkedList remove the head when list is not empty ',
+            TSLinkedList.add(new TestCase('linkedList remove the head when list is not empty ',
                     "var list = TestCase.TestObj[0];" +
                             "list.rem_next(null);",
                     "list.head.data.test == 'a' && list.tail.data.test == 'b' && result.test == 'c'"));
-            ts.add(new TestCase("linkedList the tail's next element",
+            TSLinkedList.add(new TestCase('linkedList size',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.size();",
+                    "result == 2"));
+            TSLinkedList.add(new TestCase("linkedList the tail's next element",
                     "var list = TestCase.TestObj[0];" +
                             "var r = '';" +
                             "try{list.rem_next(list.tail);}catch(Error){r = Error.message;}" +
                             "r;",
                     "result == 'element is the tail fo the list.'"));
-            ts.add(new TestCase('linkedList remove the next element by element',
+            TSLinkedList.add(new TestCase('linkedList remove the next element by element',
                     "var list = TestCase.TestObj[0];" +
                             "list.rem_next(list.head);",
                     "list.head.data.test == 'a' && result.test =='b'"));
-            ts.add(new TestCase('linkedList remove the head element when list has only one element',
+            TSLinkedList.add(new TestCase('linkedList remove the head element when list has only one element',
                     "var list = TestCase.TestObj[0];" +
                             "list.rem_next(null);",
                     "list.head == null && list.tail==null && list.size() ==0"));
-            ts.add(new TestCase('linkedList remove element when list is empty',
+            TSLinkedList.add(new TestCase('linkedList remove element when list is empty',
                     "var list = TestCase.TestObj[0];" +
                             "var r = '';" +
                             "try{list.rem_next(list.head);}catch(Error){r = Error.message;}" +
                             "r;",
                     "result == 'list is empty'"));
-            ts.run();
+            TSLinkedList.add(new TestCase('linkedList destroy',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.ins_next(null,'a');" +
+                            "list.destroy();",
+                    "list.head == null && list.tail == null && list.size() ==0"));
+            //TSLinkedList.run();
+
+            var TSdoublyLinkedList = new TestSet('doublyLinkedList',
+                            "var list = new DS.DoublyLinkedList();" +
+                                    "TestCase.TestObj[0] = list");
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList ins_next when list is empty',
+                    "var list = TestCase.TestObj[0];"+
+                             "list.ins_next(null,{test:'a'});",
+                    "list.head.data.test == 'a' && list.tail.data.test =='a'" +
+                            "&& list.head.next == null && list.tail.prev == null"));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList ins_next at head of the list when list is not empty',
+                    "var list = TestCase.TestObj[0];"+
+                            "list.ins_next(list.head,{test:'b'});",
+                    "list.head.data.test == 'a' && list.tail.data.test =='b'" +
+                            "&& list.head.next == list.tail && list.tail.prev == list.head" +
+                            "&& list.head.prev == null && list.tail.next == null"));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList ins_next at null when list is not empty',
+                    "var list = TestCase.TestObj[0];"+
+                            "list.ins_next(null,{test:'b'});",
+                    "result == -1"));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList ins_next at tail of the list when list is not empty',
+                    "var list = TestCase.TestObj[0];"+
+                            "list.ins_next(list.tail,{test:'c'});",
+                    "list.head.data.test == 'a' && list.tail.data.test =='c' && list.head.next.data.test == 'b'" +
+                            "&& list.head.next == list.tail.prev && list.head.prev == null && list.tail.next == null" +
+                            "&& list.head.next.prev == list.head && list.tail.prev.next == list.tail" ));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList remove at head of the list when list is not empty',
+                    "var list = TestCase.TestObj[0];"+
+                            "list.remove(list.head);",
+                    "list.head.data.test == 'b' && list.tail.data.test =='c' && result.test =='a'" +
+                            "&& list.head.next == list.tail && list.tail.prev == list.head" +
+                            "&& list.head.prev == null && list.tail.next == null"));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList size',
+                    "var list = TestCase.TestObj[0];"+
+                            "list.size();",
+                    "result == 2"));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList remove the tail of the list',
+                    "var list = TestCase.TestObj[0];"+
+                            "list.remove(list.tail);",
+                    "list.head.data.test == 'b' && list.tail.data.test =='b'" +
+                            "&& list.head.next == null && list.tail.prev == null && result.test =='c'"));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList remove the head element when list has only one element',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.remove(list.head);",
+                    "list.head == null && list.tail==null && list.size() ==0 && result.test =='b'"));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList remove element when list is empty',
+                    "var list = TestCase.TestObj[0];" +
+                            "var r = '';" +
+                            "try{list.remove(list.head);}catch(Error){r = Error.message;}" +
+                            "r;",
+                    "result == 'element is null or list is empty'"));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList ins_prev when list is empty',
+                    "var list = TestCase.TestObj[0];"+
+                            "list.ins_prev(null,{test:'a'});",
+                    "list.head.data.test == 'a' && list.tail.data.test =='a'" +
+                            "&& list.head.next == null && list.tail.prev == null"));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList ins_prev at head of the list when list is not empty',
+                    "var list = TestCase.TestObj[0];"+
+                            "list.ins_prev(list.head,{test:'b'});",
+                    "list.head.data.test == 'b' && list.tail.data.test =='a'" +
+                            "&& list.head.next == list.tail && list.tail.prev == list.head" +
+                            "&& list.head.prev == null && list.tail.next == null"));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList ins_prev at tail of the list when list is not empty',
+                    "var list = TestCase.TestObj[0];"+
+                            "list.ins_prev(list.tail,{test:'c'});",
+                    "list.head.data.test == 'b' && list.tail.data.test =='a' && list.head.next.data.test == 'c'" +
+                            "&& list.head.next == list.tail.prev && list.head.prev == null && list.tail.next == null" +
+                            "&& list.head.next.prev == list.head && list.tail.prev.next == list.tail" ));
+            TSdoublyLinkedList.add(new TestCase('doublyLinkedList destroy',
+                    "var list = TestCase.TestObj[0];"+
+                            "list.destroy();",
+                    "list.head == null && list.tail == null && list.size() ==0"));
+            //TSdoublyLinkedList.run();
+            var TSCircularList = new TestSet('CircularList',
+                    "var list = new DS.CircularList();" +
+                            "TestCase.TestObj[0] = list;");
+            TSCircularList.add(new TestCase('circularList ins_next when list is empty',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.ins_next(list.head,{test:'a'});",
+                    "list.head == list.head.next && list.head.data.test == 'a'"));
+            TSCircularList.add(new TestCase('circularList ins_next when list is not empty',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.ins_next(list.head,{test:'b'});",
+                    "list.head == list.head.next.next && list.head.data.test == 'a' && list.head.next.data.test =='b'"));
+            TSCircularList.add(new TestCase('circularList ins_next when list is not empty',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.ins_next(list.head.next,{test:'c'});",
+                    "list.head == list.head.next.next.next && list.head.data.test == 'a' && list.head.next.data.test =='b'" +
+                            "&& list.head.next.next.data.test =='c'"));
+            TSCircularList.add(new TestCase('circularList rem_next when list is not empty',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.rem_next(list.head);",
+                    "list.head == list.head.next.next && list.head.data.test == 'a' && list.head.next.data.test =='c'" +
+                            "&& result.test =='b'"));
+            TSCircularList.add(new TestCase('circularList size',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.size();",
+                    "result == 2"));
+            TSCircularList.add(new TestCase('circularList rem_next when list is not empty',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.rem_next(list.head);",
+                    "list.head == list.head.next && list.head.data.test == 'a' && result.test == 'c'"));
+            TSCircularList.add(new TestCase('circularList rem_next when list has only one element',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.rem_next(list.head);",
+                    "list.head == null && list.size() == 0"));
+            TSCircularList.add(new TestCase('circularList destroy',
+                    "var list = TestCase.TestObj[0];" +
+                            "list.ins_next(list.head,{test:'a'});" +
+                            "list.destroy();",
+                    "list.head == null && list.size() == 0"));
+            //TSCircularList.run();
+            var TSStack = new TestSet('Stack',
+                            "var stack = new DS.Stack();" +
+                                    "TestCase.TestObj[0] = stack");
+            TSStack.add(new TestCase("stack push when list is empty",
+                    "var stack = TestCase.TestObj[0];" +
+                            "stack.push({test:'a'});",
+                    "stack.list.head.data.test == 'a'"));
+            TSStack.add(new TestCase("stack push when list is not empty",
+                    "var stack = TestCase.TestObj[0];" +
+                            "stack.push({test:'b'});",
+                    "stack.list.head.data.test == 'a' && stack.list.head.next.data.test == 'b'"));
+            TSStack.add(new TestCase("stack peek when list is not empty",
+                    "var stack = TestCase.TestObj[0];" +
+                            "result = stack.peek();",
+                    "stack.list.head.data.test == 'a' && stack.list.head.next.data.test == 'b' && result.test == 'b'"));
+            TSStack.add(new TestCase("stack size",
+                    "var stack = TestCase.TestObj[0];" +
+                            "result = stack.size();",
+                    "result == 2"));
+            TSStack.add(new TestCase("stack pop when list is not empty",
+                    "var stack = TestCase.TestObj[0];" +
+                            "result = stack.pop();",
+                    "stack.list.head.data.test == 'a' && stack.size() ==1"));
+            TSStack.add(new TestCase("stack destroy",
+                    "var stack = TestCase.TestObj[0];" +
+                            "stack.destroy();;",
+                    "stack.list.head == null && stack.size() ==0"));
+            TSStack.add(new TestCase("stack pop when list is empty",
+                    "var stack = TestCase.TestObj[0];" +
+                            "var r = '';" +
+                            "try{stack.pop();}catch(Error){r = Error.message;}" +
+                            "r;",
+                    "result == 'element is null or list is empty'"));
+            //TSStack.run();
+            var TSQueue = new TestSet("Queue",
+                    "var queue = new DS.Queue();" +
+                            "TestCase.TestObj[0] = queue;");
+            TSQueue.add(new TestCase("queue enqueue when list is empty",
+                    "var queue = TestCase.TestObj[0];" +
+                            "queue.enqueue({test:'a'});",
+                    "queue.list.head.data.test == 'a'"));
+            TSQueue.add(new TestCase("queue enqueue when list is not empty",
+                    "var queue = TestCase.TestObj[0];" +
+                            "queue.enqueue({test:'b'});",
+                    "queue.list.head.data.test == 'a' && queue.list.head.next.data.test == 'b'"));
+            TSQueue.add(new TestCase("queue peek when list is not empty",
+                    "var queue = TestCase.TestObj[0];" +
+                            "result = queue.peek();",
+                    "queue.list.head.data.test == 'a' && queue.list.head.next.data.test == 'b' && result.test == 'a'"));
+            TSQueue.add(new TestCase("queue size",
+                    "var queue = TestCase.TestObj[0];" +
+                            "result = queue.size();",
+                    "result == 2"));
+            TSQueue.add(new TestCase("queue pop when list is not empty",
+                    "var queue = TestCase.TestObj[0];" +
+                            "result = queue.dequeue();",
+                    "queue.list.head.data.test == 'b' && queue.size() == 1"));
+            TSQueue.add(new TestCase("queue destroy",
+                    "var queue = TestCase.TestObj[0];" +
+                            "queue.destroy();;",
+                    "queue.list.head == null && queue.size() == 0"));
+            TSQueue.add(new TestCase("queue pop when list is empty",
+                    "var queue = TestCase.TestObj[0];" +
+                            "var r = '';" +
+                            "try{queue.dequeue();}catch(Error){r = Error.message;}" +
+                            "r;",
+                    "result == 'list is empty'"));
+            //TSQueue.run();
+            var TSSet = new TestSet("Set",
+                    "var set = new DS.Set(function(a,b){if(a ===b) {return true;} else {return false;}});"+
+                    "var set1 = new DS.Set(function(a,b){if(a ===b) {return true;} else {return false;}});"+
+                    "set1.insert(1);set1.insert(2);set1.insert(3);set1.insert(4);"+
+                    "var set2 = new DS.Set(function(a,b){if(a ===b) {return true;} else {return false;}});"+
+                    "set2.insert(3);set2.insert(4);set2.insert(5);set2.insert(6);"+
+                            "TestCase.TestObj[0] = set;TestCase.TestObj[1] = set1;TestCase.TestObj[2] = set2;");
+            TSSet.add(new TestCase("set insert when list is empty",
+                    "var set = TestCase.TestObj[0];" +
+                            "set.insert('a');",
+                    "set.list.head.data == 'a'"));
+            TSSet.add(new TestCase("set insert when list is not empty",
+                    "var set = TestCase.TestObj[0];" +
+                            "set.insert('b');",
+                    "set.list.head.data == 'a' && set.list.head.next.data == 'b'"));
+            TSSet.add(new TestCase("set insert when data already exist",
+                    "var set = TestCase.TestObj[0];" +
+                            "set.insert('a');",
+                    "result == 1;"));
+            TSSet.add(new TestCase("set remove when list is not empty",
+                    "var set = TestCase.TestObj[0];" +
+                            "set.remove('a');",
+                    "set.list.head.data == 'b'"));
+            TSSet.add(new TestCase("set size",
+                    "var set = TestCase.TestObj[0];" +
+                            "result = set.size();",
+                    "result == 1"));
+            TSSet.add(new TestCase("set union",
+                    "var set1 = TestCase.TestObj[1];var set2 = TestCase.TestObj[2];" +
+                            "set1.union(set2);",
+                    "set1.size() == 6 && set2.size ==  4"));
+            //TSSet.run();
+            var TSHashTable = new TestSet("HashTable",
+                    "var ht = new DS.HashTable(DS.HashTable.hashpjw,3,function(a,b){if(a===b){return true;} else {return false;}});"+
+                            "TestCase.TestObj[0] = ht");
+            TSHashTable.add(new TestCase("hashTable insert when hashTable bucket is empty",
+                    "var ht = TestCase.TestObj[0];" +
+                            "ht.insert('a');",
+                    "ht.table[DS.HashTable.hashpjw('a')%3].head.data =='a'"));
+            TSHashTable.add(new TestCase("hashTable insert when hashTable bucket is not empty",
+                    "var ht = TestCase.TestObj[0];" +
+                            "ht.insert('d');",
+                    "ht.table[DS.HashTable.hashpjw('d')%3].head.next.data =='a' && ht.table[DS.HashTable.hashpjw('d')%3].head.data =='d'"));
+            TSHashTable.add(new TestCase("hashTable insert in another bucket",
+                    "var ht = TestCase.TestObj[0];" +
+                            "ht.insert('c');",
+                    "ht.table[DS.HashTable.hashpjw('c')%3].head.data =='c' && ht.table[DS.HashTable.hashpjw('d')%3].head.data =='d'"));
+            TSHashTable.add(new TestCase("hashTable insert when data already in hashTable",
+                    "var ht = TestCase.TestObj[0];" +
+                            "ht.insert('a');",
+                    "ht.table[DS.HashTable.hashpjw('d')%3].head.next.data =='a' && ht.table[DS.HashTable.hashpjw('d')%3].head.data =='d'"));
+            TSHashTable.add(new TestCase("hashTable remove when data already in hashTable",
+                    "var ht = TestCase.TestObj[0];" +
+                            "ht.remove('a');",
+                    "ht.table[DS.HashTable.hashpjw('d')%3].head.data =='d' && ht.table[DS.HashTable.hashpjw('d')%3].head.next ==null"));
+            TSHashTable.add(new TestCase("hashTable remove when data already in hashTable",
+                    "var ht = TestCase.TestObj[0];" +
+                            "ht.size();",
+                    "result ==2"));
+            TSHashTable.add(new TestCase("hashTable remove when data already in hashTable",
+                    "var ht = TestCase.TestObj[0];" +
+                            "ht.destroy();",
+                    "ht.table.length == 0"));
+            TSHashTable.run();
         }
     </script>
 </body>

@@ -6,7 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 DS.Queue = function (destroy) {
-    this.list = new DS.LinkdList(destroy);
+    this.list = new DS.LinkedList(destroy);
 };
 DS.Queue.prototype = {
     constructor : DS.Queue,
@@ -39,7 +39,7 @@ DS.Queue.prototype = {
      * @return Data stored in the element at the head of the queue, or NULL if the queue is empty.
      * @description Macro that evaluates to the data stored in the element at the head of the queue specified by queue.
      */
-    peak : function () {
+    peek : function () {
         return this.list.head.data;
     },
     /**

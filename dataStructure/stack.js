@@ -6,7 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 DS.Stack = function (destroy) {
-    this.list = new DS.DoublyLinkdList(destroy);
+    this.list = new DS.DoublyLinkedList(destroy);
 };
 DS.Stack.prototype = {
     constructor : DS.Stack,
@@ -14,7 +14,7 @@ DS.Stack.prototype = {
      * destroy
      * @description Destroys the stack specified by stack. No other operations are permitted after calling stack_destroy unless stack_init is called again. The stack_destroy operation removes all elements from a stack and calls the function passed as destroy to stack_init once for each element as it is removed, provided destroy was not set to NULL.
      */
-    destory : function () {
+    destroy : function () {
         this.list.destroy();
     },
     /**

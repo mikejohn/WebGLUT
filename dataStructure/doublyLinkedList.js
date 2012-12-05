@@ -5,7 +5,7 @@
  * Time: 下午3:55
  * To change this template use File | Settings | File Templates.
  */
-DS.DoublyLinkdList = function (destroy) {
+DS.DoublyLinkedList = function (destroy) {
     this.head = null;
     this.tail = null;
     this.length = 0;
@@ -28,8 +28,8 @@ DS.DoublyLinkdList = function (destroy) {
         this.destroyMethod = destroy;
     }
 };
-DS.DoublyLinkdList.prototype = {
-    constructor : DS.DoublyLinkdList,
+DS.DoublyLinkedList.prototype = {
+    constructor : DS.DoublyLinkedList,
     /**
      * destroy
      * @description Destroys the linked list specified by list. No other operations are permitted after calling list_destroy unless list_init is called again. The list_destroy operation removes all elements from a linked list and calls the function passed as destroy to list_init once for each element as it is removed, provided destroy was not set to NULL.
@@ -45,8 +45,9 @@ DS.DoublyLinkdList.prototype = {
      * @description Inserts an element just after element in the doubly-linked list specified by list. When inserting into an empty list, element may point anywhere, but should be NULL to avoid confusion. The new element contains a pointer to data, so the memory referenced by data should remain valid as long as the element remains in the list. It is the responsibility of the caller to manage the storage associated with data.
      */
     ins_next : function (element,data) {
-        var node = new DS.DoublyLinkdList.Node();
+        var node = new DS.DoublyLinkedList.Node();
         node.data = data;
+        // Do not allow a NULL element unless the list is empty.
         if(element == null && this.length != 0) {
             return -1;
         }
@@ -74,12 +75,12 @@ DS.DoublyLinkdList.prototype = {
      * @description Inserts an element just before element in the doubly-linked list specified by list. When inserting into an empty list, element may point anywhere, but should be NULL to avoid confusion. The new element contains a pointer to data, so the memory referenced by data should remain valid as long as the element remains in the list. It is the responsibility of the caller to manage the storage associated with data.
      */
     ins_prev : function (element,data) {
-        var node = new DS.DoublyLinkdList.Node();
+        var node = new DS.DoublyLinkedList.Node();
         node.data = data;
         if(element == null && this.length != 0) {
             return -1;
         }
-        if(length == 0) {
+        if(this.length == 0) {
             this.head = node;
             this.tail = node;
         } else {
@@ -146,14 +147,14 @@ DS.DoublyLinkdList.prototype = {
      * @return true if the element is at the tail of the list, or otherwise.
      */
     is_tail : function (element) {
-        return this.tail == elment;
+        return this.tail == element;
     }
 };
-DS.DoublyLinkdList.Node = function () {
+DS.DoublyLinkedList.Node = function () {
     this.prev = null;
     this.next = null;
     this.data = null;
 };
-DS.DoublyLinkdList.Node.prototype = {
-    constructor:DS.DoublyLinkdList.Node
+DS.DoublyLinkedList.Node.prototype = {
+    constructor:DS.DoublyLinkedList.Node
 };
