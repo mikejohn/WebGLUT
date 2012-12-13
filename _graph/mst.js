@@ -48,12 +48,12 @@ var mst = function (graph,start) {
         }
         adjlist.color = 'black';
         for (member = adjlist.adjacent.list.head;member != null;member = member.next) {
-            adj_vertex = member;
+            adj_vertex = member.data;
             for(element = graph.adjLists.head;element != null;element = element.next){
                 mst_vertex = element.data;
-                if(match (mst_vertex.vertex,adj_vertex.data)){
+                if(match (mst_vertex.vertex,adj_vertex.vertex)){
                     if(mst_vertex.color == 'white' && adj_vertex.weight < mst_vertex.key) {
-                        mst_vertex.key = member.weight;
+                        mst_vertex.key = adj_vertex.weight;
                         mst_vertex.parent = adjlist;
                     }
                     break;
