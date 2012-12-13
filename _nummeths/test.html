@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="nm.js"></script>
+    <script src="interPol.js"></script>
+    <title></title>
+</head>
+<body>
+    <script>
+        var f = function (x) {
+            return x*x;
+        };
+        var g = function (x) {
+            return 2*x;
+        };
+        var x = [-2];
+        var n = 100;
+        var delta = 0.001;
+        var a = NM.root(f,g,x,n,delta);
+
+        var s = '';
+        for(var i=0;i< a.length;i++) {
+            s += a[i]+','
+        }
+        console.log(s);
+
+    </script>
+</body>
+</html>

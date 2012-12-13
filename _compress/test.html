@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <script src="bit.js"></script>
+    <script src="base64.js"></script>
+    <script src="huffman.js"></script>
+    <script src="../_encryption/des.js"></script>
+    <script src="../_dataStructure/dataStructure.js"></script>
+    <script src="../_dataStructure/binaryTree.js"></script>
+    <script src="../_dataStructure/heap.js"></script>
+</head>
+<body>
+<script>
+    var s = new BITS(64);
+    s.set(0,1);
+    var a = DES.main(s,s,DES.encipher);
+    console.dir(a);
+    console.dir(DES.main(a,s,DES.decipher));
+</script>
+</body>
+</html>

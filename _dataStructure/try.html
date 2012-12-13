@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="dataStructure.js"></script>
+    <script src="linkedList.js"></script>
+    <script src="set.js"></script>
+    <script src="graph.js"></script>
+    <script src="../_graph/mst.js"></script>
+    <title></title>
+</head>
+<body>
+       <script>
+           var match = function (a,b) {
+               return a === b;
+           };
+           var g = new DS.Graph(match);
+           g.ins_vertex("a");
+           g.ins_vertex("b");
+           g.ins_vertex("c");
+           //g.ins_vertex("d");
+           //g.ins_vertex("e");
+           //g.ins_vertex("f");
+           g.ins_edge("a","b",7);
+           g.ins_edge("b","a",7);
+           g.ins_edge("a","c",4);
+           g.ins_edge("c","a",4);
+           g.ins_edge("b","c",6);
+           g.ins_edge("c","b",6);
+           console.dir(g);
+           var r = mst(g,'a');
+           console.dir(r);
+
+       </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="ag.js"></script>
+    <script src="sort.js"></script>
+    <script src="search.js"></script>
+    <title></title>
+</head>
+<body>
+    <script>
+        var compare = function (a,b) {
+            if(a > b) return 1;
+            if(a < b) return -1;
+            return 0;
+        };
+        var a = [3,4,2,5,6,8,411,0,500,1,3,3,4,4,4,5];
+        AG.ctSort(a);
+        alert(AG.biSearch(a,0,compare));
+        var s = '';
+        for(var i=0;i< a.length;i++) {
+            s += a[i]+','
+        }
+        console.log(s);
+
+    </script>
+</body>
+</html>

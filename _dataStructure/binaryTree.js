@@ -5,9 +5,26 @@
  * Time: 下午2:34
  * To change this template use File | Settings | File Templates.
  */
-DS.BinaryTree = function () {
+DS.BinaryTree = function (destroy,free) {
     this.root = null;
     this.length = 0;
+    this.destroyMethod = function () {
+        if(this.root == null) {
+            return;
+        }
+        this.rem_left(this.root)
+        this.rem_right(this.root);
+        this.root.data = null;
+        this.root = null
+        this.length = 0;
+    };
+    if(destroy != undefined) {
+        this.destroyMethod = destroy;
+    }
+    this.freeMethod = null;
+    if(free != undefined) {
+        this.freeMethod = free;
+    }
 };
 DS.BinaryTree.prototype = {
     constructor: DS.BinaryTree,
@@ -16,7 +33,15 @@ DS.BinaryTree.prototype = {
      * @description Destroys the binary tree specified by tree. No other operations are permitted after calling bitree_destroy unless bitree_init is called again. The bitree_destroy operation removes all nodes from a binary tree and calls the function passed as destroy to bitree_init once for each node as it is removed, provided destroy was not set to NULL.
      */
     destroy : function () {
-
+        this.destroyMethod()
+    },
+    /**
+     * free
+     */
+    free : function (data) {
+        if(this.freeMethod != null) {
+            this.freeMethod(data);
+        }
     },
     /**
      * ins_left
@@ -26,21 +51,19 @@ DS.BinaryTree.prototype = {
      * @description Inserts a node as the left child of node in the binary tree specified by tree. If node already has a left child, bitree_ins_left returns -1. If node is NULL, the new node is inserted as the root node. The tree must be empty to insert a node as the root node; otherwise, bitree_ins_left returns -1. When successful, the new node contains a pointer to data, so the memory referenced by data should remain valid as long as the node remains in the binary tree. It is the responsibility of the caller to manage the storage associated with data.
      */
     ins_left : function (node,data) {
-        var new_node = new DS.HashTable.Node();
+        var new_node = new DS.BinaryTree.Node();
         new_node.data = data;
-        var position;
         if( node == null) {
             if(this.length > 0) {
                 return -1;
             }
-            position = this.root;
+            this.root = new_node;
         } else {
             if(node.left != null) {
                 return -1;
             }
-            position = node.left;
+            node.left = new_node;
         }
-        positoin = new_node;
         this.length ++;
         return 0;
     },
@@ -52,21 +75,19 @@ DS.BinaryTree.prototype = {
      * @description This operation is similar to bitree_ins_left, except that it inserts a node as the right child of node in the binary tree specified by tree.
      */
     ins_right : function (node,data) {
-        var new_node = new DS.HashTable.Node();
+        var new_node = new DS.BinaryTree.Node();
         new_node.data = data;
-        var position;
         if( node == null) {
             if(this.length > 0) {
                 return -1;
             }
-            position = this.root;
+            this.root = new_node;
         } else {
             if(node.right != null) {
                 return -1;
             }
-            position = node.right;
+            node.right = new_node;
         }
-        positoin = new_node;
         this.length ++;
         return 0;
     },
@@ -76,23 +97,31 @@ DS.BinaryTree.prototype = {
      * @description Removes the subtree rooted at the left child of node from the binary tree specified by tree. If node is NULL, all nodes in the tree are removed. The function passed as destroy to bitree_init is called once for each node as it is removed, provided destroy was not set to NULL.
      */
     rem_left : function (node) {
-        var position = null;
         if(this.length == 0) {
             return;
         }
         if(node == null) {
-            position = this.root;
+            if(this.root != null) {
+                this.rem_left(this.root);
+                this.rem_right(this.root);
+                this.free(this.root.data);
+                this.root.data = null;
+                this.root.left = null;
+                this.root.right = null;
+                this.root = null;
+                this.length --;
+            }
         } else {
-            position = node.left;
-        }
-        if(position != null) {
-            this.rem_left(position);
-            this.rem_right(position);
-            position.data = null;
-            position.left = null;
-            position.right = position;
-            position = null;
-            this.length --;
+            if(node.left != null) {
+                this.rem_left(node.left);
+                this.rem_right(node.left);
+                this.free(node.left.data);
+                node.left.data = null;
+                node.left.left = null;
+                node.left.right = null;
+                node.left = null;
+                this.length --;
+            }
         }
         return;
     },
@@ -107,18 +136,27 @@ DS.BinaryTree.prototype = {
             return;
         }
         if(node == null) {
-            position = this.root;
+            if(this.root != null) {
+                this.rem_left(this.root);
+                this.rem_right(this.root);
+                this.free(this.root.data);
+                this.root.data = null;
+                this.root.left = null;
+                this.root.right = null;
+                this.root = null;
+                this.length --;
+            }
         } else {
-            position = node.right;
-        }
-        if(position != null) {
-            this.rem_left(position);
-            this.rem_right(position);
-            position.data = null;
-            position.left = null;
-            position.right = position;
-            position = null;
-            this.length --;
+            if(node.right != null) {
+                this.rem_left(node.right);
+                this.rem_right(node.right);
+                this.free(node.right.data);
+                node.right.data = null;
+                node.right.left = null;
+                node.right.right = null;
+                node.right = null;
+                this.length --;
+            }
         }
         return;
     },
