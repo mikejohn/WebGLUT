@@ -6,6 +6,7 @@
     <script src="set.js"></script>
     <script src="graph.js"></script>
     <script src="../_graph/mst.js"></script>
+    <script src="../_graph/sp.js"></script>
     <title></title>
 </head>
 <body>
@@ -20,14 +21,14 @@
            //g.ins_vertex("d");
            //g.ins_vertex("e");
            //g.ins_vertex("f");
-           g.ins_edge("a","b",7);
-           g.ins_edge("b","a",7);
+           //g.ins_edge("a","b",7);
+           //g.ins_edge("b","a",7);
            g.ins_edge("a","c",4);
            g.ins_edge("c","a",4);
            g.ins_edge("b","c",6);
            g.ins_edge("c","b",6);
            console.dir(g);
-           var r = mst(g,'a');
+           var r = shortest(g,'a');
            console.dir(r);
 
        </script>
