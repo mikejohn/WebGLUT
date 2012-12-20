@@ -1,42 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-
+    <script src="greedy_TriStripping.js"></script>
     <title></title>
 </head>
 <body>
     <script>
-        function a () {
-            var unitSize = 4;
-            var formatString = '';
-            var lengthCount = 0,offset=[];
-
-            var currElmt = '',lastElmt = null;
-            for(var i=0;i<formatString.length;i++) {
-               var c = formatString.charAt(i);
-               if(Number(c) != c) {
-                   currElmt += c;
-                   for(var j=i+1;j<formatString.length;j++) {
-                       var nc = formatString.charAt(j);
-                       if(Number(nc) == nc) {
-                           currElmt += nc;
-                       } else {
-                           break;
-                       }
-                   }
-                   if(lastElmt != currElmt) {
-                       lastElmt = currElmt;
-                       offset.push(lengthCount*unitSize);
-                   }
-                   currElmt = '';
-                   lengthCount++;
-               }
-
-            }
-            console.log(lengthCount);
-            console.dir(offset);
-        }
-        a();
+        var p1 = new PrimitiveTriangle(0,1,2);
+        var p2 = new PrimitiveTriangle(1,2,3);
+        var p3 = new PrimitiveTriangle(2,3,4);
+        var p4 = new PrimitiveTriangle(3,4,5);
+        var primitives = [p1,p2,p3,p4];
+        greedy_triangle_stripping(primitives);
     </script>
 </body>
 </html>
