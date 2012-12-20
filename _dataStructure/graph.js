@@ -25,15 +25,15 @@ DS.Graph.prototype = {
         }
     },
     ins_vertex : function (data) {
-       var element,adjList,retval;
+       var element,adjListNode,retval;
        for(element = this.adjLists.head;element != null;element = element.next) {
            if(this.match(data,element.data.vertex)) {
-               return 1;
+               return -1;
            }
        }
-       adjList = new DS.Graph.AdjList(this.match);
-       adjList.vertex = data;
-       if((retval = this.adjLists.ins_next(this.adjLists.tail,adjList)) !=0) {
+       adjListNode = new DS.Graph.AdjListNode(this.match);
+       adjListNode.vertex = data;
+       if((retval = this.adjLists.ins_next(this.adjLists.tail,adjListNode)) !=0) {
            return retval;
        }
        this.vcount++;
@@ -57,25 +57,20 @@ DS.Graph.prototype = {
         if(element == null) {
             return -1;
         }
-        if((retval = element.data.adjacent.insert(data2)) != 0) {
+        var edgeNode = new DS.Graph.AdjacentNode(data2,weight);
+        if((retval = element.data.adjacent.insert(edgeNode)) != 0) {
             return retval;
-        }
-        if(weight != undefined) {
-            for(var member = element.data.adjacent.list.head;member!= null;member = member.next) {
-                if(member.data === data2) {
-                    member.weight = weight;
-                }
-            }
         }
         this.ecount++;
         return 0;
     },
     rem_vertex : function (data) {
-        var element,temp,prev,adjList,found = false;
+        var element,temp,prev,adjListNode,found = false;
         prev = null;
         found = 0;
         for(element = this.adjLists.head;element != null;element = element.next) {
-            if(element.data.adjacent.is_member(data)) {
+            var adjacentNode = new DS.AdjacentNode(data,0);
+            if(element.data.adjacent.is_member(adjacentNode)) {
                 return -1;
             }
             if(this.match(data,element.data.vertex)){
@@ -93,16 +88,16 @@ DS.Graph.prototype = {
             return -1;
         }
         try {
-            adjList = this.adjLists.rem_next(prev)
+            adjListNode = this.adjLists.rem_next(prev);
         }catch(Error) {
             return -1;
         }
-        this.free(adjList);
+        this.free(adjListNode);
         this.vcount--;
         return 0;
     },
     rem_edge : function (data1,data2) {
-        var element;
+        var element,member;
         for(element = this.adjLists.head;element != null;element =element.next) {
             if(this.match(data1,element.data.vertex)) {
                 break;
@@ -111,11 +106,12 @@ DS.Graph.prototype = {
         if(element == null) {
             return -1;
         }
-        if(element.data.adjacent.remove(data2)!=0) {
+        var adjacentNode = new DS.Graph.AdjacentNode(data2,0);
+        if(element.data.adjacent.remove(adjacentNode)!=0){
             return -1;
         }
         this.ecount--;
-        return 0
+        return -0;
     },
     adjList : function (data) {
         var element;
@@ -130,24 +126,33 @@ DS.Graph.prototype = {
         return element.data.adjacent;
     },
     is_adjacent : function (data1,data2) {
-        var element,prev;
-        prev = null;
+        var element,member;
         for(element= this.adjLists.head;element != null;element = element.next){
             if(this.match(data1,element.data.vertex)) {
                 break;
             }
-            prev = element;
         }
         if(element == null) {
             return false;
         }
-        return element.data.adjacent.is_member(data2);
+        var adjacentNode = new DS.Graph.AdjacentNode(data2,0);
+        return element.adjacent.is_member(adjacentNode);
     }
 };
-DS.Graph.AdjList = function (match) {
+DS.Graph.AdjListNode = function (match) {
     this.vertex = null;
-    this.adjacent = new DS.Set(match);
+    var setMatch = function (a,b) {
+        return match(a.vertex, b.vertex);
+    };
+    this.adjacent = new DS.Set(setMatch);
 };
-DS.Graph.AdjList.prototype = {
+DS.Graph.AdjListNode.prototype = {
     constructor : DS.Graph.AdjList
 };
+DS.Graph.AdjacentNode = function (vertex,weight) {
+    this.vertex = vertex;
+    this.weight = weight;
+};
+DS.Graph.AdjacentNode.prototype = {
+    constructor: DS.Graph.AdjacentNode
+}
